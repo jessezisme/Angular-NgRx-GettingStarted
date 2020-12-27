@@ -151,5 +151,41 @@ export const productReducer = createReducer<ProductState>(
         error: action.error,
       };
     }
+  ),
+  on(
+    ProductActions.createProductSuccess,
+    (state, action): ProductState => {
+      const updatedProducts = state.products.filter(
+        (product) => product.id !== action.product.id
+      );
+      return {
+        ...state,
+        products: [...updatedProducts, action.product],
+        error: '',
+      };
+    }
+  ),
+
+  on(
+    ProductActions.deleteProductSuccess,
+    (state, action): ProductState => {
+      const updatedProducts = state.products.filter(
+        (product) => product.id !== action.product.id
+      );
+      return {
+        ...state,
+        products: updatedProducts,
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.deleteProductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
+    }
   )
 );
