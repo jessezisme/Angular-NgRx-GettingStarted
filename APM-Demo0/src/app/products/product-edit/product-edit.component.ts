@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Product } from '../product';
-import { ProductService } from '../product.service';
 import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
 
 /* NgRx */
 import { Store } from '@ngrx/store';
-import { State, getCurrentProduct } from '../state/product.reducer';
+import { State, getCurrentProduct } from '../state/index';
 import * as ProductActions from '../state/product.actions';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -76,10 +75,6 @@ export class ProductEditComponent implements OnInit {
       .select(getCurrentProduct)
       .subscribe((currentProduct) => this.displayProduct(currentProduct));
 
-    // this.sub = this.productService.selectedProductChanges$.subscribe(
-    //   (currentProduct) => this.displayProduct(currentProduct)
-    // );
-
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
       () =>
@@ -129,10 +124,6 @@ export class ProductEditComponent implements OnInit {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
         this.store.dispatch(ProductActions.deleteProduct({ product }));
-        // this.productService.deleteProduct(product.id).subscribe({
-        //   next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
-        //   error: (err) => (this.errorMessage = err),
-        // });
       }
     } else {
       // No need to delete, it was never saved
