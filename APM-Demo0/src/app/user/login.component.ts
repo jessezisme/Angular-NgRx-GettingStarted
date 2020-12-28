@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { AuthService } from './auth.service';
-import { getMaskUserName, State } from './state/user.reducer';
-import * as UserActions from './state/user.actions';
+import { getMaskUserName, State } from './state/index';
+import { UserActions } from './state/actions/index';
 
 @Component({
   templateUrl: './login.component.html',
@@ -13,8 +13,6 @@ import * as UserActions from './state/user.actions';
 })
 export class LoginComponent implements OnInit {
   pageTitle = 'Log In';
-
-  // maskUserName: boolean;
   maskUserName$: any;
 
   constructor(
@@ -24,9 +22,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // this.store.select(getMaskUserName).subscribe((maskUserName) => {
-    //   this.maskUserName = maskUserName;
-    // });
     this.maskUserName$ = this.store.select(getMaskUserName);
   }
 
@@ -35,7 +30,6 @@ export class LoginComponent implements OnInit {
   }
 
   checkChanged(): void {
-    // this.store.dispatch({ type: '[User] Toggle Mask Username' });
     this.store.dispatch(UserActions.maskUserName());
   }
 

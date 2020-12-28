@@ -1,16 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Product } from '../product';
 import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
-
-/* NgRx */
-import { Store } from '@ngrx/store';
-import { State, getCurrentProduct } from '../state/index';
-import { ProductPageActions, ProductApiActions } from '../state/actions/index';
-import { tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'pm-product-edit',
@@ -18,17 +11,30 @@ import { Observable } from 'rxjs';
 })
 export class ProductEditComponent implements OnInit {
   pageTitle = 'Product Edit';
-  errorMessage = '';
-  productForm: FormGroup;
-  product: Product | null;
 
+  @Output() delete = new EventEmitter<Product>();
+  @Output() clear = new EventEmitter<void>();
+  @Output() create = new EventEmitter<Product>();
+  @Output() update = new EventEmitter<Product>();
+
+  @Input() errorMessage: string;
+
+  _product: Product;
+  @Input() set product(product: Product) {
+    this._product = product;
+    this.displayProduct(product);
+  }
+  get product(): Product {
+    return this._product;
+  }
+
+  productForm: FormGroup;
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
-  product$: Observable<Product | null>;
 
-  constructor(private store: Store<State>, private fb: FormBuilder) {
+  constructor(private fb: FormBuilder) {
     // Defines all of the validation messages for the form.
     // These could instead be retrieved from a file or database.
     this.validationMessages = {
@@ -65,16 +71,6 @@ export class ProductEditComponent implements OnInit {
       starRating: ['', NumberValidators.range(1, 5)],
       description: '',
     });
-
-    // Watch for changes to the currently selected product
-    this.product$ = this.store
-      .select(getCurrentProduct)
-      .pipe(tap((currentProduct) => this.displayProduct(currentProduct)));
-
-    this.store
-      .select(getCurrentProduct)
-      .subscribe((currentProduct) => this.displayProduct(currentProduct));
-
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
       () =>
@@ -123,11 +119,11 @@ export class ProductEditComponent implements OnInit {
   deleteProduct(product: Product): void {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.store.dispatch(ProductPageActions.deleteProduct({ product }));
+        this.delete.emit(this.product);
       }
     } else {
       // No need to delete, it was never saved
-      this.store.dispatch(ProductPageActions.clearCurrentProduct());
+      this.clear.emit();
     }
   }
 
@@ -140,9 +136,9 @@ export class ProductEditComponent implements OnInit {
         const product = { ...originalProduct, ...this.productForm.value };
 
         if (product.id === 0) {
-          this.store.dispatch(ProductPageActions.createProduct({ product }));
+          this.create.emit(product);
         } else {
-          this.store.dispatch(ProductPageActions.updateProduct({ product }));
+          this.update.emit(product);
         }
       }
     }

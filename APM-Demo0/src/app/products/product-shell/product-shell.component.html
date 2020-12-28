@@ -4,7 +4,7 @@
       [errorMessage]="errorMessage$ | async"
       [displayCode]="displayCode$ | async"
       [products]="products$ | async"
-      [selectedProduct]="selectProduct$ | async"
+      [selectedProduct]="selectedProduct$ | async"
       (displayCodeChanged)="checkChanged()"
       (initializeNewProduct)="newProduct()"
       (productWasSelected)="productSelected($any($event))"
@@ -12,6 +12,14 @@
     </pm-product-list>
   </div>
   <div class="col-md-8">
-    <pm-product-edit></pm-product-edit>
+    <pm-product-edit
+      [errorMessage]="errorMessage$ | async"
+      [product]="selectedProduct$ | async"
+      (create)="createProduct($event)"
+      (clear)="clearProduct()"
+      (update)="updateProduct($event)"
+      (delete)="deleteProduct($event)"
+    >
+    </pm-product-edit>
   </div>
 </div>
